@@ -76,6 +76,11 @@ def comment [path, message?] {
     }
 }
 
+# Remove a file's comment
+def 'comment remove' [path] {
+    attr remove $path 'user.xdg.comment'
+}
+
 # TODO: Consider adding glob support, https://www.nushell.sh/book/moving_around.html#glob-patterns-wildcards
 
 # def --wrapped 'ls attr' [...rest] {
