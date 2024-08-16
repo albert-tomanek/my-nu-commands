@@ -48,13 +48,32 @@ def 'tags remove' [path, name] {
 
 # Get the rating for a file
 def rating [path] -> int {
-    let value = attr get $path|get -i user.baloo.rating;
-    return (if ($value|is-empty) { null } else { $value|into int });
+    let score = attr get $path|get -i user.baloo.rating;
+    return (if ($score|is-empty) { null } else { $score|into int });
 }
 
 # Set the rating for a file
-def 'rate' [path, val: int] {   # FIXME: This may clash with something
-    attr set $path 'user.baloo.rating' ($val|into string)
+def 'rating set' [
+    path,
+    score: int  # Must be between 1 and 10.
+] {
+    attr set $path 'user.baloo.rating' ($score|into string)
+}
+
+alias rate = rating set;    # FIXME: Name may clash with something
+
+# Remove the rating from a file
+def 'rating remove' [path] {
+    attr remove $path 'user.baloo.rating'
+}
+
+# Sets a file's comment if a message is provided, else gets it.
+def comment [path, message?] {
+    if ($message|is-empty) {
+        return (attr get $path|get -i user.xdg.comment)
+    } else {
+        attr set $path 'user.xdg.comment' $message;
+    }
 }
 
 # TODO: Consider adding glob support, https://www.nushell.sh/book/moving_around.html#glob-patterns-wildcards
@@ -64,6 +83,7 @@ def 'rate' [path, val: int] {   # FIXME: This may clash with something
 # Pipe the output of 'ls' into this to see attributes too.
 def 'with attr' [] {
     $in
-    | insert rating {|row| rating $row.name}
-    | insert tags   {|row| tags list $row.name}
+    | insert rating  {|row| rating $row.name}
+    | insert tags    {|row| tags list $row.name}
+    | insert comment {|row| comment $row.name}
 }
