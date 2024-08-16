@@ -53,7 +53,7 @@ def rating [path] -> int {
 }
 
 # Set the rating for a file
-def 'rating set' [path, val: int] {
+def 'rate' [path, val: int] {   # FIXME: This may clash with something
     attr set $path 'user.baloo.rating' ($val|into string)
 }
 
