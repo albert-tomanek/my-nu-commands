@@ -48,10 +48,22 @@ def 'tags remove' [path, name] {
 
 # Get the rating for a file
 def rating [path] -> int {
-    attr get $path|get -i user.baloo.rating|into int
+    let value = attr get $path|get -i user.baloo.rating;
+    return (if ($value|is-empty) { null } else { $value|into int });
 }
 
 # Set the rating for a file
 def 'rating set' [path, val: int] {
     attr set $path 'user.baloo.rating' ($val|into string)
+}
+
+# TODO: Consider adding glob support, https://www.nushell.sh/book/moving_around.html#glob-patterns-wildcards
+
+# def --wrapped 'ls attr' [...rest] {
+
+# Pipe the output of 'ls' into this to see attributes too.
+def 'with attr' [] {
+    $in
+    | insert rating {|row| rating $row.name}
+    | insert tags   {|row| tags list $row.name}
 }
